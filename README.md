@@ -1,5 +1,7 @@
 # NSQ Exporter
 
+> This fork fixes an issue with NSQ 1.x.x that led to the unability to fetch metrics. The built image can be found at `emaincourt/nsq_exporter`.
+
 NSQ exporter for prometheus.io, written in go.
 
 ## Usage
