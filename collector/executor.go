@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"log"
 )
 
 // NsqExecutor collects all NSQ metrics from the registered collectors.
@@ -54,6 +55,7 @@ func NewNsqExecutor(namespace, nsqdURL, tlsCACert, tlsCert, tlsKey string) (*Nsq
 		tlsConfig := &tls.Config{
 			Certificates: []tls.Certificate{cert},
 			RootCAs:      caCertPool,
+			InsecureSkipVerify:true,
 		}
 		tlsConfig.BuildNameToCertificate()
 		transport.TLSClientConfig = tlsConfig
@@ -61,7 +63,8 @@ func NewNsqExecutor(namespace, nsqdURL, tlsCACert, tlsCert, tlsKey string) (*Nsq
 	return &NsqExecutor{
 		nsqdURL: nsqdURL,
 		summary: sum,
-		client:  &http.Client{Transport: transport},
+		client:  &http.Client{Transport:
+			},
 	}, nil
 }
 
@@ -90,8 +93,10 @@ func (e *NsqExecutor) Collect(out chan<- prometheus.Metric) {
 	for _, c := range e.collectors {
 		c.reset()
 	}
-
 	stats, err := getNsqdStats(e.client, e.nsqdURL)
+	if err != nil {
+		log.Print("Err in getNsqdStats",err)
+	}
 	tScrape := time.Since(start).Seconds()
 
 	result := "success"
